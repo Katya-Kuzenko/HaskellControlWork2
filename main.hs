@@ -23,7 +23,15 @@ empty        :: Dict k v
 -- 1. Populate a following typeclass
 --    d denotes the actual type of the dictionary (its type constructor)   
 class IDict d k v where
-  -- ???
+  insert       :: k -> v -> d k v -> d k v
+  maybeGet     :: k -> d k v -> Maybe v
+  getOrDefault :: k -> d k v -> v -> v
+  contains     :: k -> d k v -> Bool
+  delete       :: k -> d k v -> d k v
+  elems        :: d k v -> [v]
+  keys         :: d k v -> [k]
+  size         :: d k v -> Int
+  empty        :: d k v 
 
 
 -- 2. Propose a naive implementation of the typeclass above 
