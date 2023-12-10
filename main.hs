@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE InstanceSigs #-}
+import Data.List (intercalate)
 
 {-
 Dictionaries are one of the most common data structure.
@@ -71,7 +72,7 @@ instance (Eq k) => IDict Dict k v where
       delete' k [] = []
       delete' k ((k', v'):rest)
         | k == k' = rest
-        | otherwise = [(k', v')] : delete' k rest
+        | otherwise = (k', v') : delete' k rest
 
   -- отримати список всіх значень 
   elems (Dict dict) = map (\(k, v) -> v) dict
@@ -90,12 +91,12 @@ instance (Eq k) => IDict Dict k v where
 --    in the form {key : value} 
 instance (Show k, Show v) => Show (Dict k v) where
   show :: Dict k v -> String
-  show x = -- ???
+  show (Dict x) = "{" ++ intercalate ", " (map (\(k, v) -> show k ++ " : " ++ show v) x) ++ "}"
 
 
 main = do
-  print $ fromPairs kvPairs
+  print $ (fromPairs kvPairs :: Dict Int Char) -- ось це та наступне виправлення пыдказав PowerShell. По-іншому не буде працювати
   where
     kvPairs   = [(1,'h'), (2,'e'), (3, 'l'), (4,'l'), (5, 'o')]
-    fromPairs = foldl insert' empty
+    fromPairs = foldl (insert' :: Dict Int Char -> (Int, Char) -> Dict Int Char) empty
     insert' dict (k, v) = insert k v dict
