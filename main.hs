@@ -35,10 +35,55 @@ class IDict d k v where
 
 
 -- 2. Propose a naive implementation of the typeclass above 
-data Dict k v = -- ???
+data Dict k v = Dict [(k, v)]
 
-instance {- (???) => -} IDict Dict k v where
-  -- ???
+instance (Eq k) => IDict Dict k v where
+  -- вставка ключа та значення в словник 
+  insert k v (Dict dict) =  Dict (insert' k v dict)
+    where
+      insert' k v [] = [(k, v)]
+      insert' k v ((k', v'):rest) 
+        | k == k' = [(k, v)] ++ rest
+        | otherwise = [(k', v')] ++ insert' k v rest
+
+  -- отримати значення за ключем
+  maybeGet k (Dict dict) = maybeGet' k dict
+    where
+      maybeGet' k [] = Nothing
+      maybeGet' k ((k', v'):rest) 
+        | k == k' = Just v'                               
+        | otherwise = maybeGet' k rest
+
+  -- значення за ключем || дефолтне значення
+  getOrDefault k (Dict dict) v = getOrDefault' k dict v
+    where
+      getOrDefault' k [] v = v
+      getOrDefault' k ((k', v'):rest) v 
+        | k == k' = v'
+        | otherwise = getOrDefault' k rest v 
+
+  -- чи є ключ в словнику 
+  contains k (Dict dict) = any (\(k', _) -> k' == k) dict
+
+  -- видалити ключ
+  delete k (Dict dict) = Dict (delete' k dict)
+    where
+      delete' k [] = []
+      delete' k ((k', v'):rest)
+        | k == k' = rest
+        | otherwise = [(k', v')] : delete' k rest
+
+  -- отримати список всіх значень 
+  elems (Dict dict) = map (\(k, v) -> v) dict
+  
+  -- отримати список всіх ключів
+  keys (Dict dict) = map (\(k, v) -> k) dict
+  
+  -- розмір словника
+  size (Dict dict) = length dict
+  
+  -- пустий словник
+  empty = Dict []
 
 
 -- 3. Implement the Show typeclass to represent your dictionary 
@@ -48,17 +93,6 @@ instance (Show k, Show v) => Show (Dict k v) where
   show x = -- ???
 
 
-{- OPTIONAL
--- 4. Implement the Fucntor typeclass
---    that alows mapping over dictionary
---    Uncomment this block, if you do this
-instance Functor (Dict k) where
-  fmap :: (v -> p) -> Dict k v -> Dict k p
-  fmap f dict = -- ???
--}
-
--- please, make sure your code runs without errors
--- comment out unsolved tasks
 main = do
   print $ fromPairs kvPairs
   where
